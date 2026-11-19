@@ -4,42 +4,43 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Downloading Railway Reservation source code'
                 checkout scm
+                echo 'Source code checked out from GitHub'
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Starting application build'
                 sh '''
-                    test -f index.html || exit 1
-                    test -f style.css || exit 1
-                    test -f script.js || exit 1
-                    echo "Application files verified successfully"
+                    echo "Validating application files..."
+                    test -f index.html
+                    test -f style.css
+                    test -f script.js
+                    echo "All application files found"
                 '''
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing application files'
-                grep -i "<html" index.html
-                grep -i "bookingForm" index.html
-                grep -i "addEventListener" script.js
-                echo "All basic validation tests passed"
+                sh '''
+                    echo "Testing file contents..."
+                    grep -qi "<html" index.html
+                    grep -q "bookingForm" index.html
+                    grep -q "addEventListener" script.js
+                    echo "All content checks passed"
+                '''
             }
         }
 
         stage('Package') {
             steps {
-                echo 'Creating application package'
-                rm -f railway-reservation.zip
-                zip railway-reservation.zip index.html style.css script.js
+                sh '''
+                    rm -f railway-reservation.zip
+                    zip railway-reservation.zip index.html style.css script.js
+                    ls -l railway-reservation.zip
+                '''
             }
         }
     }
-
-    post {
-        success {
-            echo 'Railway Reservation Build Successful!'
+}
